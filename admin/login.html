@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Staff login — Gemini Solariss</title>
+<meta name="robots" content="noindex">
+<script>
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem('theme'); } catch (e) {}
+    if (t !== 'dark' && t !== 'light') t = window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+  })();
+</script>
+<link rel="stylesheet" href="/site.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><div class="brand-mark">☀️</div> Gemini Solariss</div>
+  <a href="/" style="color:var(--muted);font-size:14px">← Back to the public page</a>
+</header>
+<main>
+  <form class="card" id="form" autocomplete="off">
+    <h1>Staff login</h1>
+    <p class="hint" style="text-align:left">Enter the admin password to open the dashboard.</p>
+    <label class="field">Password
+      <input type="password" id="pw" autocomplete="current-password" autofocus required>
+    </label>
+    <p class="hint err" id="err" hidden></p>
+    <button class="cta" id="go" type="submit">Sign in</button>
+  </form>
+</main>
+<script>
+  const err = document.getElementById('err'), go = document.getElementById('go');
+  document.getElementById('form').onsubmit = async (e) => {
+    e.preventDefault();
+    go.disabled = true; err.hidden = true;
+    try {
+      const res = await fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: document.getElementById('pw').value }) });
+      if (res.ok) return location.reload();
+      err.textContent = (await res.json().catch(() => ({}))).error || 'Could not sign in.';
+    } catch { err.textContent = 'Could not reach the server.'; }
+    err.hidden = false; go.disabled = false;
+    document.getElementById('pw').select();
+  };
+</script>
+</body>
+</html>

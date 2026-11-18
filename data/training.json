@@ -1,0 +1,47 @@
+[
+  {
+    "id": "cd614a0c-1b56-4261-a9ec-be28c3ef5336",
+    "customer": "ok solunga",
+    "reply": "உங்க electricity bill-ஐ குறைக்க solar பத்தி பேசலாமா? இப்போ பேச உகந்த நேரமா சார்?"
+  },
+  {
+    "id": "a413d1e8-1012-404d-bc58-65a87c966ebe",
+    "customer": "ok",
+    "reply": "ரொம்ப நன்றி சார்! உங்க பெயர் என்னன்னு தெரிஞ்சுக்கலாமா?"
+  },
+  {
+    "id": "f9932ac2-54a0-4927-9b1b-e232cba89a44",
+    "customer": "krishna kumar",
+    "reply": "கிருஷ்ணா குமார் சார், வணக்கம்! இது உங்க சொந்த வீடா இல்ல commercial building-ஆ சார்?"
+  },
+  {
+    "id": "79b123f2-83e1-4380-980b-30e8b51bb411",
+    "customer": "commercial",
+    "reply": "சரி சார். இது உங்க சொந்த கட்டிடம் தானா, இல்ல rent-டியா சார்?"
+  },
+  {
+    "id": "b13e5ffa-9336-46b1-a4d9-b2d216ee9f90",
+    "customer": "average 50k",
+    "reply": "கிருஷ்ணா குமார் சார், exact-ஆ கடந்த 3 மாத bill amounts சொல்ல முடியுமா? அப்போதான் எந்த capacity system சரியா இருக்கும்னு கணிக்க முடியும்."
+  },
+  {
+    "id": "d9bd20d0-fd56-41bd-b491-e25c99f1b24c",
+    "customer": "ila",
+    "reply": "பரவாயில்லை சார். உங்ககிட்ட முழுமையான முகவரி (full address) சொல்ல முடியுமா?"
+  },
+  {
+    "id": "edfea838-580b-4c43-9dd8-0118c4e593fd",
+    "customer": "1428 a, madipakkam chennai",
+    "reply": "நன்றி சார்! உங்க வீட்டை நேரில் வந்து பரிசோதிக்க Gemini Solariss engineer வரலாம். எந்த நாள் உங்களுக்கு வசதியா இருக்கும் சார்?"
+  },
+  {
+    "id": "7454188f-3d45-4f66-99a7-db6c26e5e63c",
+    "customer": "naliku morning 10am",
+    "reply": "சரி சார், நாளைக்கு காலைல 10 மணிக்கு Gemini Solariss engineer உங்க இடத்தை வந்து பார்க்க ஏற்பாடு பண்றேன். ரொம்ப நன்றி சார்!"
+  },
+  {
+    "id": "1e9e39fc-67d3-49ae-9bb0-74feccb19776",
+    "customer": "en kita 250sqft dha iruku , enaku solar panel poda mudiyuma?",
+    "reply": "ஒரு kW-க்கு கிட்டத்தட்ட 100 square feet நிழல் விழாத terrace இடம் வேணும்."
+  }
+]

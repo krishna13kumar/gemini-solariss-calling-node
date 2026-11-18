@@ -1,0 +1,9 @@
+{
+ "tamil_chat": [
+  "nim:nvidia/nemotron-3-ultra-550b-a55b",
+  "nim:nvidia/nemotron-3-super-120b-a12b"
+ ],
+ "reasoning": [
+  "nim:nvidia/nemotron-3-super-120b-a12b"
+ ]
+}

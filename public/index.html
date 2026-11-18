@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Speak with our solar advisor — Gemini Solariss</title>
+<meta name="description" content="Talk to Kavya, Gemini Solariss's AI assistant. She notes your details so our team can book your free rooftop-solar site visit.">
+<script>
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem('theme'); } catch (e) {}
+    if (t !== 'dark' && t !== 'light') t = window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+  })();
+</script>
+<link rel="stylesheet" href="/site.css">
+</head>
+<body data-view="intro">
+
+<header class="topbar">
+  <div class="brand"><div class="brand-mark">☀️</div> Gemini Solariss</div>
+  <button class="icon-btn" id="themeBtn" aria-label="Switch light or dark theme" title="Switch light / dark">🌙</button>
+</header>
+
+<main>
+  <!-- Before the call -->
+  <section class="intro">
+    <h1>Speak with our solar advisor</h1>
+    <p class="lead">Press the button and talk to <b>Kavya</b>, our AI assistant, straight from your browser. She will ask a few simple questions and <b>note down your details</b> so our team can <b>book your free site-visit appointment</b>.</p>
+    <ul class="steps">
+      <li>🏠 Your home</li><li>💡 Your EB bill</li><li>📍 Your address</li><li>📅 Your appointment</li>
+    </ul>
+    <button class="cta" id="startBtn">🎙️ Speak with agent</button>
+    <p class="hint" id="introHint">Takes about 4 minutes. Tamil or English — whichever you prefer. Headphones give the best sound.</p>
+  </section>
+
+  <!-- During the call -->
+  <section class="live" aria-live="polite">
+    <div class="orb" id="orb" data-mode="connecting">🎙️</div>
+    <p class="status" id="status">Connecting…</p>
+    <div class="captions" id="captions"></div>
+    <button class="cta stop" id="endBtn">End call</button>
+  </section>
+
+  <!-- After the call -->
+  <section class="done">
+    <div class="tick">✅</div>
+    <h1 id="doneTitle">Thank you!</h1>
+    <p class="lead" id="doneText">Your details have been noted. Our team will contact you shortly to confirm your appointment.</p>
+    <button class="cta ghost" id="againBtn">Speak again</button>
+  </section>
+</main>
+
+<footer>
+  This call is handled by an AI assistant. Your voice and answers are recorded to arrange your appointment.
+  · <a href="/admin">Staff login</a>
+</footer>
+
+<script src="/agent.js"></script>
+</body>
+</html>

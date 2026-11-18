@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gemini Solariss — AI Voice Agent</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tabulator-tables@6.3.0/dist/css/tabulator_midnight.min.css">
+<link rel="stylesheet" href="/admin/style.css">
+</head>
+<body>
+<div class="container">
+
+  <header class="header">
+    <div>
+      <h1>Gemini Solariss — AI Voice Agent</h1>
+      <span class="muted">Tamil-first multilingual outbound caller</span>
+    </div>
+    <div class="badges">
+      <label class="badge" title="Which AI writes Kavya's replies and fills the results sheet. Switches instantly for the next reply — no restart. If the chosen one errors, the other takes over automatically (LLM_FALLBACK).">
+        🧠 AI model
+        <select id="llmSelect"></select>
+      </label>
+      <a class="badge" href="/" style="background:transparent;border:1px solid var(--border);color:var(--text);text-decoration:none" title="The public page visitors see">🌐 Public page</a>
+      <button class="badge" id="logoutBtn" style="background:transparent;border:1px solid var(--border);color:var(--text);cursor:pointer" title="Sign out of the dashboard">🔒 Log out</button>
+      <span id="modeBadge" class="badge">Checking mode…</span>
+      <span id="exotelBadge" class="badge" title="Exotel is the telephony carrier — it dials leads over the real phone network and streams call audio to/from this app in real time.">Checking Exotel…</span>
+      <span id="exotelBalanceBadge" class="badge" title="Exotel wallet balance — this is what actually gets spent per minute of real outbound calls. Checked live via Exotel's Account Balance API.">Exotel balance…</span>
+      <span id="sarvamBadge" class="badge" title="Sarvam provides the Tamil/multilingual speech-to-text (hearing the lead) and text-to-speech (Kavya's voice) used during every call. Sarvam has no API for checking remaining credits — this reflects the outcome of the last real STT/TTS call, not a live balance. Check dashboard.sarvam.ai/billing for the actual number.">Sarvam: checking…</span>
+    </div>
+  </header>
+
+  <!-- Settings -->
+  <section class="card">
+    <div class="card-head">
+      <h2>⚙️ AI &amp; Speech Settings</h2>
+      <div class="actions"><button class="btn" id="settingsSaveBtn">Save &amp; apply</button></div>
+    </div>
+    <div class="muted">Applies immediately (next reply / next utterance) and is remembered across restarts in <code>data/settings.json</code>, overriding <code>.env</code>. API keys stay in your environment — they're never shown here.</div>
+    <div class="settings-grid">
+      <label>Active AI model provider
+        <select id="setProvider"></select>
+      </label>
+      <label class="check"><input type="checkbox" id="setFallback"> If it errors, let the other AI answer that turn</label>
+      <label>Gemini model <span class="row-inline"><input type="text" id="setGeminiModel" list="geminiModels"><button class="btn secondary" data-test="gemini">Test</button></span></label>
+      <label>NVIDIA model <span class="row-inline"><input type="text" id="setNvidiaModel" list="nvidiaModels"><button class="btn secondary" data-test="nvidia">Test</button></span></label>
+      <label>Wait after you stop talking
+        <select id="setEndOfTurn">
+          <option value="2">≈0.4s — fastest, may cut you off mid-answer</option>
+          <option value="3">≈0.5s — quick</option>
+          <option value="4">≈0.65s — balanced (default)</option>
+          <option value="6">≈0.9s — slow speakers / reading out numbers</option>
+        </select>
+      </label>
+      <label>Speech-to-text
+        <select id="setSttEngine">
+          <option value="default">Sarvam (cloud, built in)</option>
+          <option value="cactus">Cactus Whisper (self-hosted)</option>
+        </select>
+      </label>
+      <label>Cactus server URL <input type="text" id="setCactusUrl"></label>
+      <label>Cactus model <input type="text" id="setCactusModel"></label>
+    </div>
+    <datalist id="geminiModels"></datalist>
+    <datalist id="nvidiaModels"></datalist>
+    <div id="settingsStatus" class="status" hidden></div>
+  </section>
+
+  <!-- Leads -->
+  <section class="card">
+    <div class="card-head">
+      <h2>Leads <span id="leadCount" class="muted"></span></h2>
+      <div class="actions">
+        <label class="btn secondary file-btn">Upload Excel<input type="file" id="leadsUploadInput" accept=".xlsx,.xls" hidden></label>
+        <button class="btn secondary" id="addLeadRowBtn">+ Row</button>
+        <button class="btn" id="saveLeadsBtn">Save Changes</button>
+        <button class="btn accent" id="runCampaignBtn">🚀 Run Campaign</button>
+      </div>
+    </div>
+    <div id="leadsStatus" class="status" hidden></div>
+    <div id="leadsGrid"></div>
+  </section>
+
+  <!-- Custom call + local mic test -->
+  <section class="card">
+    <div class="card-head"><h2>Call a Number</h2></div>
+    <div class="row">
+      <input type="text" id="customName" placeholder="Name (optional)">
+      <input type="text" id="customPhone" placeholder="+91XXXXXXXXXX">
+      <button class="btn accent" id="customCallBtn">📞 Call via Exotel</button>
+    </div>
+    <div id="customCallStatus" class="status" hidden></div>
+
+    <div class="divider"></div>
+
+    <h3>Local Microphone Test <span class="muted">(no Exotel/phone needed)</span></h3>
+    <div class="row">
+      <button class="btn" id="micConnectBtn">🎙️ Connect Mic &amp; Speak Greeting</button>
+      <button class="btn secondary" id="micEndBtn">🛑 End &amp; Save Transcript</button>
+      <div class="meter"><div id="meterFill" class="meter-fill"></div></div>
+    </div>
+    <div id="stageBar" class="stage-bar"><span id="stagePill" class="badge">Not connected</span><span class="muted">What Kavya is doing right now</span></div>
+    <div class="split">
+      <div id="transcriptBox" class="chat-box"></div>
+      <div>
+        <div id="pipelineBox" class="chat-box trace" title="Live trace of every step: hearing → transcription → what is sent to the AI → AI reply → voice"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chat -->
+  <section class="card">
+    <div class="card-head">
+      <h2>💬 Chat with Kavya <span class="muted">(text — same brain as the voice agent)</span></h2>
+      <div class="actions"><button class="btn secondary" id="chatNewBtn">New chat &amp; save</button></div>
+    </div>
+    <div class="split">
+      <div id="chatBox" class="chat-box"></div>
+      <div id="chatTrace" class="chat-box trace"></div>
+    </div>
+    <form id="chatForm" class="row" style="margin-top:10px;">
+      <input type="text" id="chatInput" placeholder="Type a message in Tamil, English, Tanglish…" autocomplete="off">
+      <button class="btn accent" type="submit">Send</button>
+    </form>
+    <div class="muted" style="margin-top:10px;">Train Kavya: click <b>👍 Teach</b> on a reply you like, or <b>✏️ Fix</b> to type the reply she <i>should</i> have given. Examples are used immediately by both chat and voice calls (no restart).</div>
+    <div id="trainList" class="trace" style="margin-top:8px;"></div>
+  </section>
+
+  <!-- Results -->
+  <section class="card">
+    <div class="card-head">
+      <h2>Call Results <span class="muted">(read-only)</span></h2>
+      <div class="actions">
+        <button class="btn secondary" id="refreshResultsBtn">Refresh</button>
+        <a class="btn accent" id="downloadResultsBtn" href="/api/results/download">⬇ Download Excel</a>
+      </div>
+    </div>
+    <div id="resultsGrid"></div>
+  </section>
+
+  <!-- Quick answers -->
+  <section class="card">
+    <div class="card-head">
+      <h2>⚡ Quick Answers <span id="faqCount" class="muted"></span></h2>
+      <div class="actions">
+        <label class="btn secondary file-btn">Import Excel<input type="file" id="faqImportInput" accept=".xlsx,.csv" hidden></label>
+        <button class="btn secondary" id="faqAddRowBtn">+ Row</button>
+        <button class="btn secondary" id="faqRegenVoiceBtn" title="Pre-generates the voice for every answer that doesn't have it yet (uses Sarvam credits once per answer). Happens automatically on Save too.">🔊 Generate voice</button>
+        <button class="btn" id="faqSaveBtn">Save &amp; Index</button>
+      </div>
+    </div>
+    <div class="muted">Kavya uses these two ways. <b>Instant:</b> when a customer's question closely matches a row, she answers straight from the saved answer — no AI call and no voice synthesis (the audio is pre-generated) — then returns to the question she was asking. <b>Grounded:</b> for everything else, the AI is given all of these answers as approved knowledge, so it can answer related questions in its own words (and still escalates anything these don't cover).</div>
+    <div id="faqMode" class="muted" style="margin-top:6px;"></div>
+    <div class="row" style="margin:10px 0;">
+      <label class="muted">Match threshold
+        <input type="number" id="faqThreshold" min="0.1" max="0.99" step="0.01" value="0.30" style="width:80px;">
+      </label>
+      <span class="muted">Higher = safer (fewer wrong matches, more questions go to the AI). Use the test box below to tune it.</span>
+    </div>
+    <div class="muted" style="margin-bottom:10px;">⚠️ Matching barely tells numbers apart ("3 kW" vs "2 kW"), so keep similar questions in <b>one</b> row whose answer covers every case, rather than one row per number.</div>
+    <div id="faqStatus" class="status" hidden></div>
+    <div id="faqGrid"></div>
+    <h3>Test a question</h3>
+    <div class="row">
+      <input type="text" id="faqTestInput" placeholder="Type or paste what a customer might say…">
+      <button class="btn secondary" id="faqTestBtn">Test match</button>
+    </div>
+    <div id="faqTestOut" class="status" hidden></div>
+  </section>
+
+  <!-- Transcription -->
+  <section class="card">
+    <div class="card-head"><h2>Transcribe a Call Recording</h2></div>
+    <div class="muted">Upload a Telecaller ↔ Lead recording (mp3, wav, m4a, ogg…). Comes back as a labeled conversation.</div>
+    <form id="transcribeForm" class="row" style="margin-top:10px;">
+      <input type="file" name="audio" id="transcribeFile" accept="audio/*" required>
+      <select name="language" id="transcribeLanguage">
+        <option value="unknown">Auto-detect</option>
+        <option value="ta-IN">Tamil</option>
+        <option value="en-IN">English</option>
+        <option value="hi-IN">Hindi</option>
+      </select>
+      <select name="mode" id="transcribeMode">
+        <option value="transcribe">Original language</option>
+        <option value="translate">Translate to English</option>
+        <option value="codemix">Tanglish</option>
+        <option value="translit">Romanized</option>
+      </select>
+      <button class="btn accent" type="submit">Transcribe</button>
+    </form>
+    <div id="transcribeStatus" class="status" hidden></div>
+    <div id="transcribeOut" class="chat-box" hidden></div>
+    <button class="btn secondary" id="transcribeDownloadBtn" hidden style="margin-top:8px;">Download .txt</button>
+  </section>
+
+  <!-- Voice Cloning -->
+  <section class="card">
+    <div class="card-head"><h2>🎙️ Voice Cloning</h2></div>
+    <div class="muted">Upload a 10-30s clean, single-speaker reference clip of a voice you have the right to clone.</div>
+    <div class="row" style="margin-top:10px;">
+      <input type="text" id="voiceCloneName" placeholder="Voice name (optional)">
+      <input type="file" id="voiceCloneFile" accept="audio/*">
+      <button class="btn accent" id="voiceCloneBtn">Upload &amp; Clone</button>
+    </div>
+    <div id="voiceCloneStatus" class="status" hidden></div>
+  </section>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/tabulator-tables@6.3.0/dist/js/tabulator.min.js"></script>
+<script src="/admin/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "llm": {
+    "provider": "gemini",
+    "fallback": true,
+    "models": {
+      "gemini": "gemini-3.5-flash-lite",
+      "nvidia": "nvidia/nemotron-3-super-120b-a12b"
+    }
+  },
+  "stt": {
+    "engine": "default",
+    "url": "",
+    "model": ""
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "gemini-solariss-calling-node",
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "seed-leads": "node src/generateSampleLeads.js",
+    "compare-stt": "node scripts/compare_stt.js",
+    "test": "node tests/test_transcription.js && node tests/test_faq.js && node tests/test_faq_flow.js && node tests/test_vad.js && node tests/test_speed.js && node tests/test_llm_router.js && node tests/test_settings_store.js && node tests/test_cactus_stt.js && node tests/test_training.js && node tests/test_results_store.js && node tests/test_dialogue_flow.js"
+  },
+  "dependencies": {
+    "@fastify/multipart": "^8.3.1",
+    "@fastify/static": "^7.0.4",
+    "@fastify/websocket": "^10.0.1",
+    "@google/genai": "^2.21.0",
+    "dotenv": "^16.6.1",
+    "fastify": "^4.29.1",
+    "ollama": "^0.5.18",
+    "sarvamai": "^1.1.10",
+    "xlsx": "^0.18.5"
+  }
+}
